@@ -19,7 +19,7 @@ import (
 			"1", "2", "3",
 			"4", "5", "6",
 			"7", "8", "9"}
-		joueur1 = true 
+		player1 bool = true 
 	)
 
 func Play()  {
@@ -27,7 +27,7 @@ func Play()  {
 	for true{
 		var index string
 
-		if joueur1 == true {
+		if player1 == true {
 			index =  symboleJoueur1
 		} else {
 			index = symboleJoueur2
@@ -39,7 +39,6 @@ func Play()  {
 			tableauMorpion[strconv.Atoi(text) -1] =  index
 		 }
 		
-		
 	}
 
 }
@@ -48,4 +47,3 @@ func main() {
 	fmt.Printf("test : ", tableauMorpion[0])
 	fmt.Println("Hello World")
 }
-
