@@ -36,8 +36,17 @@ func Play()  {
 		 var text strings
 		 text = scanner.Text()
 		 if strconv.Atoi(text)-1 > 9 ||  strconv.Atoi(text)-1 < 1{
-			tableauMorpion[strconv.Atoi(text) -1] =  index
+			tableauMorpion[strconv.Atoi(text) -1] = index
+			if tableauMorpion[strconv.Atoi(text) -1] != "X" || "O"{
+				tableauMorpion[strconv.Atoi(text) -1] = index
+				if player1 == true{
+				player1 = false
+				}else{
+					player1 = true
+				}
+			}	
 		 }
+		 continue
 		
 	}
 
