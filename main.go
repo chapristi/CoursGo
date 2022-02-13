@@ -3,63 +3,65 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 )
 
+// ProcessLine searches for old in line to replace it by new
+// It returns found=true, if the pattern was found, res with resulting sting
+// and occ with the numbre of occurence of old
 func ProcessLine(line, old, new string) (found bool, res string, occ int) {
-	//sera appelé par findreplace a chaque ligne lu
-	//ligne à traiter
-	//old ancien mot
-	// new nouveau mot
-	//found vrai ou faux si au moins une occurence de trouvé
-	//res resultat de la ligne
-	//occ nombre d'occurence de old
-	isWord := strings.Contains(line, old) // repere si y a un mot dans la ligne
-	if isWord {
-		nbr := strings.Count(line, old)                  //contient le nombre d'occurence
-		res := strings.Replace(line, "go", "python", -1) //remplace
-		return isWord, res, nbr
+	var oldLower string = strings.ToLower(old)
+	var newLower string = strings.ToLower(new)
+	res = line
+	//strings.Contains trouve si il y a le vieux mot dans la ligne données
+	if strings.Contains(line, old) || strings.Contains(line, oldLower) {
+		found = true
+		occ += strings.Count(line, old)
+		//on incremente au cas ou le mot commencerais par une majuscule
+		occ += strings.Count(line, oldLower)
+		res = strings.Replace(line, old, new, -1)
+		//on incremente au cas ou le mot commencerais par une majuscule
+		res = strings.Replace(res, oldLower, newLower, -1)
 	}
-	return false, line, 0
-
+	return found, res, occ
 }
+
 func FindReplaceFile(src string, old, new string) (occ int, lines []int, err error) {
-	//src le lien du fichier,
-	//old l'ancien mot
-	//new le nouveau mot
-	//occ nombre d'occurence
-	//lines les lignes ou old a etait trouvé
-	//err erreur de la fonction
-
-	file, err := os.Open(src)
+	srcFile, err := os.Open(src)
 	if err != nil {
-		log.Fatalf("Error when opening file: %s", err)
+		return occ, lines, err
 	}
-	scanner := bufio.NewScanner(file)
-	count := 1
+	defer srcFile.Close()
+	lineIdx := 1
+	scanner := bufio.NewScanner(srcFile)
 	for scanner.Scan() {
-		count += 1
-		t := scanner.Text() //contient une ligne
-		isFound, res, nbr := ProcessLine(t, old, new)
-		if isFound {
-			lines[count-1] = count
-			occ += nbr
-			t = res
+		found, res, o := ProcessLine(scanner.Text(), old, new)
+		if found {
+			occ += o
+			lines = append(lines, lineIdx)
 		}
-
+		println(res)
+		lineIdx++
 	}
-	return occ, lines, err
-
+	return occ, lines, nil
 }
 
 func main() {
-	occ, lines, err := FindReplaceFile("i.txt", "go", "python")
+	old := "Go"
+	newWord := "Python"
+	occ, lines, err := FindReplaceFile("i.txt", old, newWord)
 	if err != nil {
-		log.Fatalf("Error when opening file: %s", err)
+		fmt.Println("Error")
 	}
-	fmt.Println("les lignes", lines)
-	fmt.Println("nombre d'occurence", occ)
+	fmt.Println("== summary")
+	defer fmt.Println("== End of summary")
+	fmt.Printf("number %v\n", occ)
+	fmt.Printf("number of lines %d\n", len(lines))
+	fmt.Printf("Lines : [ ")
 
+	for _, l := range lines {
+		fmt.Printf("%v - ", l)
+	}
+	fmt.Printf("]\n")
 }
